@@ -73,17 +73,6 @@ correo = TextInput(
                         )
 layout.add_widget(correo)
 
-# Validaciones
-def limitar_id(instance, value):
-    if len(value) > 10:
-        instance.text = value[:10]
-telefono.bind(text=limitar_id)
-
-def sin_espacios(instance, value):
-    if ' ' in value:
-        instance.text = value.replace(' ', '')
-correo.bind(text=sin_espacios)
-
 # Botones
 boton_crear = Button(text='Crear',
                     background_color=(0, 0.5, 1, 1),
@@ -105,6 +94,17 @@ boton_eliminar = Button(text='Eliminar',
                        pos_hint={'x': 0.7, 'y': 0.2},
                        size_hint=(0.2, 0.08))
 layout.add_widget(boton_eliminar)
+
+# Validaciones
+def limitar_id(instance, value):
+    if len(value) > 10:
+        instance.text = value[:10]
+telefono.bind(text=limitar_id)
+
+def sin_espacios(instance, value):
+    if ' ' in value:
+        instance.text = value.replace(' ', '')
+correo.bind(text=sin_espacios)
 
 # App
 class CatalogoClienteApp(App):
