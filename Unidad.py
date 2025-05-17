@@ -210,15 +210,18 @@ def crear_unidad(instance):
     val = valor.text
     if id and nom and valor:
         insertar(id, nom, val)
-        show_popup("Éxito", "unidad creado correctamente")
+        show_popup("Éxito", "Unidad creado correctamente")
     else:
         show_popup("Error","Asegurate de llenar todos los campos correctamente") 
 
 def agregar_unidad(instance):
     id = id_unidad.text
     codigo = articulo_seleccionado
-    atribuir(id, codigo)
-    show_popup("Éxito", "unidad agregada correctamente")
+    if id and codigo:
+        atribuir(id, codigo)
+        show_popup("Éxito", "Unidad agregada correctamente")
+    else:
+        show_popup("Error", "Ingresa todos los campos correctamente")
     
 def eliminar_unidad(instance):
     id = id_unidad.text
