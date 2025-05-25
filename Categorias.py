@@ -1,4 +1,4 @@
-from kivy.app import App
+from kivy.uix.screenmanager import Screen
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout 
 from kivy.uix.label import Label
@@ -129,137 +129,140 @@ def leer():
     return {nombre: codigo for codigo, nombre in resultados}
 articulo_seleccionado = None
 
-def articulo_select(spinner, text):
-    global articulo_seleccionado
-    articulo_seleccionado = articulos_dict.get(text)
-    print(f'Seleccionaste: {text} (Código: {articulo_seleccionado})')
+class CategoriaScreen(Screen):    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Interfaz
+        Window.clearcolor = (0.12, 0.12, 0.12, 1)
+        layout = FloatLayout()
 
-def cerrar():
-    cursor.close()
-    conexion.close()
+        # Título
+        layout.add_widget(Label(text='Catálogo de Categoria',
+                                pos_hint={'x': 0.27, 'y': 0.87},
+                                size_hint=(0.5, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='24sp'))
 
-# Interfaz
-Window.clearcolor = (0.12, 0.12, 0.12, 1)
-layout = FloatLayout()
+        # Campos de entrada
+        # ID
+        layout.add_widget(Label(text='ID categoria',
+                                pos_hint={'x': 0.05, 'y': 0.75},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        id_categoria = TextInput(
+                                background_color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.77},
+                                size_hint=(0.4, 0.05),
+                                multiline=False)
+        layout.add_widget(id_categoria)
 
-# Título
-layout.add_widget(Label(text='Catálogo de Categoria',
-                        pos_hint={'x': 0.27, 'y': 0.87},
-                        size_hint=(0.5, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='24sp'))
+        # Categoria
+        layout.add_widget(Label(text='Categoria',
+                                pos_hint={'x': 0.05, 'y': 0.65},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        categoria = TextInput(
+                                background_color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.67},
+                                size_hint=(0.4, 0.05),
+                                multiline=False)
+        layout.add_widget(categoria)
 
-# Campos de entrada
-# ID
-layout.add_widget(Label(text='ID categoria',
-                        pos_hint={'x': 0.05, 'y': 0.75},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-id_categoria = TextInput(
-                          background_color=(1, 1, 1, 1),
-                          pos_hint={'x': 0.3, 'y': 0.77},
-                          size_hint=(0.4, 0.05),
-                          multiline=False)
-layout.add_widget(id_categoria)
+        # Articulo
+        articulos_dict = leer()
+        def articulo_select(spinner, text):
+            global articulo_seleccionado
+            articulo_seleccionado = articulos_dict.get(text)
+            print(f'Seleccionaste: {text} (Código: {articulo_seleccionado})')
 
-# Categoria
-layout.add_widget(Label(text='Categoria',
-                        pos_hint={'x': 0.05, 'y': 0.65},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-categoria = TextInput(
-                        background_color=(1, 1, 1, 1),
-                        pos_hint={'x': 0.3, 'y': 0.67},
-                        size_hint=(0.4, 0.05),
-                        multiline=False)
-layout.add_widget(categoria)
+        articulo_spinner = Spinner(text='Seleccionar',
+                                values=list(articulos_dict.keys()), 
+                                background_color=(0.8, 0.8, 0.8, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.57},
+                                size_hint=(0.2, 0.05))
 
-# Articulo
-articulos_dict = leer()
+        layout.add_widget(Label(text='Artículo',
+                                pos_hint={'x': 0.05, 'y': 0.55},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        layout.add_widget(articulo_spinner)
+        articulo_spinner.bind(text=articulo_select)
 
-articulo_spinner = Spinner(text='Seleccionar',
-                           values=list(articulos_dict.keys()), 
-                           background_color=(0.8, 0.8, 0.8, 1),
-                           color=(1, 1, 1, 1),
-                           pos_hint={'x': 0.3, 'y': 0.57},
-                           size_hint=(0.2, 0.05))
+        # Funciones de los botones
+        def crear_categoria(instance):
+            id = id_categoria.text
+            nom = categoria.text
+            if id and nom:
+                insertar(id, nom)
+                show_popup("Éxito", "Categoria creada correctamente")
+            else:
+                show_popup("Error", "Ingresa todos los campos correctamente")
 
-layout.add_widget(Label(text='Artículo',
-                        pos_hint={'x': 0.05, 'y': 0.55},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-layout.add_widget(articulo_spinner)
-articulo_spinner.bind(text=articulo_select)
+        def agregar_categoria(instance):
+            id = id_categoria.text
+            codigo = articulo_seleccionado
+            if id and codigo:
+                atribuir(id, codigo)
+                show_popup("Éxito", "Categoria agregada correctamente")
+            else:
+                show_popup("Error", "Ingresa todos los campos correctamente")
+            
+        def eliminar_categoria(instance):
+            id = id_categoria.text
+            if id:
+                eliminar(id)
+                show_popup("Éxito", "Categoria eliminado correctamente")
+                # Limpiar campos
+                id_categoria.text = ""
+                categoria.text = ""
+            else:
+                show_popup("Error", "Ingresa el id de la categoria a eliminar")        
 
-# Funciones de los botones
-def crear_categoria(instance):
-    id = id_categoria.text
-    nom = categoria.text
-    if id and nom:
-        insertar(id, nom)
-        show_popup("Éxito", "Categoria creada correctamente")
-    else:
-        show_popup("Error", "Ingresa todos los campos correctamente")
+        # Botones
+        boton_crear = Button(text='Crear',
+                            background_color=(0, 0.5, 1, 1),
+                            color=(1, 1, 1, 1),
+                            pos_hint={'x': 0.1, 'y': 0.2},
+                            size_hint=(0.2, 0.08))
+        boton_crear.bind(on_press=crear_categoria)
+        layout.add_widget(boton_crear)
 
-def agregar_categoria(instance):
-    id = id_categoria.text
-    codigo = articulo_seleccionado
-    if id and codigo:
-        atribuir(id, codigo)
-        show_popup("Éxito", "Categoria agregada correctamente")
-    else:
-        show_popup("Error", "Ingresa todos los campos correctamente")
-    
-def eliminar_categoria(instance):
-    id = id_categoria.text
-    if id:
-        eliminar(id)
-        show_popup("Éxito", "Categoria eliminado correctamente")
-        # Limpiar campos
-        id_categoria.text = ""
-        categoria.text = ""
-    else:
-        show_popup("Error", "Ingresa el id de la categoria a eliminar")        
+        boton_agregar = Button(text='Agregar',
+                                background_color=(0, 0.5, 1, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.4, 'y': 0.2},
+                                size_hint=(0.2, 0.08))
+        boton_agregar.bind(on_press=agregar_categoria)
+        layout.add_widget(boton_agregar)
 
-# Botones
-boton_crear = Button(text='Crear',
-                    background_color=(0, 0.5, 1, 1),
-                    color=(1, 1, 1, 1),
-                    pos_hint={'x': 0.1, 'y': 0.2},
-                    size_hint=(0.2, 0.08))
-boton_crear.bind(on_press=crear_categoria)
-layout.add_widget(boton_crear)
+        boton_eliminar = Button(text='Eliminar',
+                            background_color=(0, 0.5, 1, 1),
+                            color=(1, 1, 1, 1),
+                            pos_hint={'x': 0.7, 'y': 0.2},
+                            size_hint=(0.2, 0.08))
+        boton_eliminar.bind(on_press=eliminar_categoria)
+        layout.add_widget(boton_eliminar)
 
-boton_agregar = Button(text='Agregar',
-                         background_color=(0, 0.5, 1, 1),
-                         color=(1, 1, 1, 1),
-                         pos_hint={'x': 0.4, 'y': 0.2},
-                         size_hint=(0.2, 0.08))
-boton_agregar.bind(on_press=agregar_categoria)
-layout.add_widget(boton_agregar)
-
-boton_eliminar = Button(text='Eliminar',
-                       background_color=(0, 0.5, 1, 1),
-                       color=(1, 1, 1, 1),
-                       pos_hint={'x': 0.7, 'y': 0.2},
-                       size_hint=(0.2, 0.08))
-boton_eliminar.bind(on_press=eliminar_categoria)
-layout.add_widget(boton_eliminar)
-
-boton_consultar = Button(text='Consultar',
-                        background_color=(0, 0.5, 1, 1),
-                        color=(1, 1, 1, 1),
-                        pos_hint={'x': 0.3, 'y': 0.08},  # Mismo x que boton_crear
-                        size_hint=(0.4, 0.08))  # 0.6 = 0.7 (x de Eliminar) - 0.1 (x de Crear)
-boton_consultar.bind(on_press=lambda x: consultar())
-layout.add_widget(boton_consultar)
-
-
-# App
-class CatalogoArticuloApp(App):
-    def build(self):
-        return layout
-CatalogoArticuloApp().run()
+        boton_consultar = Button(text='Consultar',
+                                background_color=(0, 0.5, 1, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.08}, 
+                                size_hint=(0.4, 0.08))  
+        boton_consultar.bind(on_press=lambda x: consultar())
+        layout.add_widget(boton_consultar)
+        boton_volver = Button(
+            text='Volver al menú',
+            background_color=(1, 0, 0, 1),
+            color=(1, 1, 1, 1),
+            pos_hint={'x': 0.8, 'y': 0.87},
+            size_hint=(0.15, 0.08)
+        )
+        boton_volver.bind(on_press=self.volver_menu)
+        layout.add_widget(boton_volver)
+        self.add_widget(layout)
+    def volver_menu(self, instance):
+        self.manager.current = 'menu'

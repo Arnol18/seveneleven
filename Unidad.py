@@ -1,4 +1,4 @@
-from kivy.app import App
+from kivy.uix.screenmanager import Screen
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout 
 from kivy.uix.label import Label
@@ -122,154 +122,160 @@ def leer():
     resultados = cursor.fetchall()
     return {nombre: codigo for codigo, nombre in resultados}
 articulo_seleccionado = None
-
-def articulo_select(spinner, text):
-    global articulo_seleccionado
-    articulo_seleccionado = articulos_dict.get(text)
-    print(f'Seleccionaste: {text} (Código: {articulo_seleccionado})')
-
-
-def cerrar():
-    cursor.close()
-    conexion.close()
     
-# Interfaz
-Window.clearcolor = (0.12, 0.12, 0.12, 1)
-layout = FloatLayout()
+class UnidadScreen(Screen):    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)    
+        # Interfaz
+        Window.clearcolor = (0.12, 0.12, 0.12, 1)
+        layout = FloatLayout()
 
-# Título
-layout.add_widget(Label(text='Catálogo de Unidad',
-                        pos_hint={'x': 0.27, 'y': 0.87},
-                        size_hint=(0.5, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='24sp'))
+        # Título
+        layout.add_widget(Label(text='Catálogo de Unidad',
+                                pos_hint={'x': 0.27, 'y': 0.87},
+                                size_hint=(0.5, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='24sp'))
 
-# Campos de entrada
-# id
-layout.add_widget(Label(text='ID unidad',
-                        pos_hint={'x': 0.05, 'y': 0.75},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-id_unidad = TextInput(
-                          background_color=(1, 1, 1, 1),
-                          pos_hint={'x': 0.3, 'y': 0.77},
-                          size_hint=(0.4, 0.05),
-                          multiline=False)
-layout.add_widget(id_unidad)
+        # Campos de entrada
+        # id
+        layout.add_widget(Label(text='ID unidad',
+                                pos_hint={'x': 0.05, 'y': 0.75},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        id_unidad = TextInput(
+                                background_color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.77},
+                                size_hint=(0.4, 0.05),
+                                multiline=False)
+        layout.add_widget(id_unidad)
 
-# Nombre
-layout.add_widget(Label(text='Tipo de unidad',
-                        pos_hint={'x': 0.05, 'y': 0.65},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-unidad = TextInput(
-                        background_color=(1, 1, 1, 1),
-                        pos_hint={'x': 0.3, 'y': 0.67},
-                        size_hint=(0.4, 0.05),
-                        multiline=False)
-layout.add_widget(unidad)
+        # Nombre
+        layout.add_widget(Label(text='Tipo de unidad',
+                                pos_hint={'x': 0.05, 'y': 0.65},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        unidad = TextInput(
+                                background_color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.67},
+                                size_hint=(0.4, 0.05),
+                                multiline=False)
+        layout.add_widget(unidad)
 
-# Valor
-layout.add_widget(Label(text='Valor',
-                        pos_hint={'x': 0.05, 'y': 0.55},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-valor = TextInput(
-                        background_color=(1, 1, 1, 1),
-                        pos_hint={'x': 0.3, 'y': 0.57},
-                        size_hint=(0.4, 0.05),
-                        multiline=False)
-layout.add_widget(valor)
+        # Valor
+        layout.add_widget(Label(text='Valor',
+                                pos_hint={'x': 0.05, 'y': 0.55},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        valor = TextInput(
+                                background_color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.57},
+                                size_hint=(0.4, 0.05),
+                                multiline=False)
+        layout.add_widget(valor)
 
-# Articulo
-articulos_dict = leer()
-
-articulo_spinner = Spinner(text='Seleccionar',
-                           values=list(articulos_dict.keys()), 
-                           background_color=(0.8, 0.8, 0.8, 1),
-                           color=(1, 1, 1, 1),
-                           pos_hint={'x': 0.3, 'y': 0.47},
-                           size_hint=(0.2, 0.05))
-
-layout.add_widget(Label(text='Artículo',
-                        pos_hint={'x': 0.05, 'y': 0.45},
-                        size_hint=(0.3, 0.1),
-                        color=(1, 1, 1, 1),
-                        font_size='18sp'))
-layout.add_widget(articulo_spinner)
-articulo_spinner.bind(text=articulo_select)
-
-
-# Funciones de los botones
-def crear_unidad(instance):
-    id = id_unidad.text
-    nom = unidad.text
-    val = valor.text
-    if id and nom and valor:
-        insertar(id, nom, val)
-        show_popup("Éxito", "Unidad creado correctamente")
-    else:
-        show_popup("Error","Asegurate de llenar todos los campos correctamente") 
-
-def agregar_unidad(instance):
-    id = id_unidad.text
-    codigo = articulo_seleccionado
-    if id and codigo:
-        atribuir(id, codigo)
-        show_popup("Éxito", "Unidad agregada correctamente")
-    else:
-        show_popup("Error", "Ingresa todos los campos correctamente")
+        # Articulo
+        articulos_dict = leer()
+        
+        def articulo_select(spinner, text):
+            global articulo_seleccionado
+            articulo_seleccionado = articulos_dict.get(text)
+            print(f'Seleccionaste: {text} (Código: {articulo_seleccionado})')
     
-def eliminar_unidad(instance):
-    id = id_unidad.text
-    if id:
-        eliminar(id)
-        show_popup("Éxito", "Unidad eliminado correctamente")
-        # Limpiar campos
-        id_unidad.text = ""
-        unidad.text = ""
-        valor.text = ""
-    else:
-        show_popup("Error", "Ingresa el id para eliminar correctamente")
+        articulo_spinner = Spinner(text='Seleccionar',
+                                values=list(articulos_dict.keys()), 
+                                background_color=(0.8, 0.8, 0.8, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.47},
+                                size_hint=(0.2, 0.05))
 
-# Botones
-boton_crear = Button(text='Crear',
-                    background_color=(0, 0.5, 1, 1),
-                    color=(1, 1, 1, 1),
-                    pos_hint={'x': 0.1, 'y': 0.2},
-                    size_hint=(0.2, 0.08))
-boton_crear.bind(on_press=crear_unidad)
-layout.add_widget(boton_crear)
+        layout.add_widget(Label(text='Artículo',
+                                pos_hint={'x': 0.05, 'y': 0.45},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        layout.add_widget(articulo_spinner)
+        articulo_spinner.bind(text=articulo_select)
 
-boton_agregar = Button(text='Agregar',
-                         background_color=(0, 0.5, 1, 1),
-                         color=(1, 1, 1, 1),
-                         pos_hint={'x': 0.4, 'y': 0.2},
-                         size_hint=(0.2, 0.08))
-boton_agregar.bind(on_press=agregar_unidad)
-layout.add_widget(boton_agregar)
 
-boton_eliminar = Button(text='Eliminar',
-                       background_color=(0, 0.5, 1, 1),
-                       color=(1, 1, 1, 1),
-                       pos_hint={'x': 0.7, 'y': 0.2},
-                       size_hint=(0.2, 0.08))
-boton_eliminar.bind(on_press=eliminar_unidad)
-layout.add_widget(boton_eliminar)
+        # Funciones de los botones
+        def crear_unidad(instance):
+            id = id_unidad.text
+            nom = unidad.text
+            val = valor.text
+            if id and nom and valor:
+                insertar(id, nom, val)
+                show_popup("Éxito", "Unidad creado correctamente")
+            else:
+                show_popup("Error","Asegurate de llenar todos los campos correctamente") 
 
-boton_consultar = Button(text='Consultar',
-                        background_color=(0, 0.5, 1, 1),
-                        color=(1, 1, 1, 1),
-                        pos_hint={'x': 0.3, 'y': 0.08},  # Mismo x que boton_crear
-                        size_hint=(0.4, 0.08))  # 0.6 = 0.7 (x de Eliminar) - 0.1 (x de Crear)
-boton_consultar.bind(on_press=lambda x: consultar())
-layout.add_widget(boton_consultar)
+        def agregar_unidad(instance):
+            id = id_unidad.text
+            codigo = articulo_seleccionado
+            if id and codigo:
+                atribuir(id, codigo)
+                show_popup("Éxito", "Unidad agregada correctamente")
+            else:
+                show_popup("Error", "Ingresa todos los campos correctamente")
+            
+        def eliminar_unidad(instance):
+            id = id_unidad.text
+            if id:
+                eliminar(id)
+                show_popup("Éxito", "Unidad eliminado correctamente")
+                # Limpiar campos
+                id_unidad.text = ""
+                unidad.text = ""
+                valor.text = ""
+            else:
+                show_popup("Error", "Ingresa el id para eliminar correctamente")
 
-# App
-class CatalogoUnidadApp(App):
-    def build(self):
-        return layout
-CatalogoUnidadApp().run()
+        # Botones
+        boton_crear = Button(text='Crear',
+                            background_color=(0, 0.5, 1, 1),
+                            color=(1, 1, 1, 1),
+                            pos_hint={'x': 0.1, 'y': 0.2},
+                            size_hint=(0.2, 0.08))
+        boton_crear.bind(on_press=crear_unidad)
+        layout.add_widget(boton_crear)
+
+        boton_agregar = Button(text='Agregar',
+                                background_color=(0, 0.5, 1, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.4, 'y': 0.2},
+                                size_hint=(0.2, 0.08))
+        boton_agregar.bind(on_press=agregar_unidad)
+        layout.add_widget(boton_agregar)
+
+        boton_eliminar = Button(text='Eliminar',
+                            background_color=(0, 0.5, 1, 1),
+                            color=(1, 1, 1, 1),
+                            pos_hint={'x': 0.7, 'y': 0.2},
+                            size_hint=(0.2, 0.08))
+        boton_eliminar.bind(on_press=eliminar_unidad)
+        layout.add_widget(boton_eliminar)
+
+        boton_consultar = Button(text='Consultar',
+                                background_color=(0, 0.5, 1, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.08},
+                                size_hint=(0.4, 0.08)) 
+        boton_consultar.bind(on_press=lambda x: consultar())
+        layout.add_widget(boton_consultar)
+        
+        boton_volver = Button(
+            text='Volver al menú',
+            background_color=(1, 0, 0, 1),
+            color=(1, 1, 1, 1),
+            pos_hint={'x': 0.8, 'y': 0.87},
+            size_hint=(0.15, 0.08)
+        )
+        boton_volver.bind(on_press=self.volver_menu)
+        layout.add_widget(boton_volver)
+        
+        self.add_widget(layout)
+    def volver_menu(self, instance):
+        self.manager.current = 'menu'

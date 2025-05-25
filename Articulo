@@ -110,7 +110,7 @@ def eliminar(id_proveedor):
     cursor.execute(query, valores)
     conexion.commit()
 
-class ProveedorScreen(Screen):    
+class ArticuloScreen(Screen):    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Interfaz
@@ -126,66 +126,92 @@ class ProveedorScreen(Screen):
             font_size='24sp'
         ))
 
-        # ID proveedor
-        layout.add_widget(Label(text='ID proveedor',
+        # Codigo de barras
+        layout.add_widget(Label(text='Codigo de Barras',
                             pos_hint={'x': 0.05, 'y': 0.75},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
-        id_proveedor = TextInput(
+        codigo_barras = TextInput(
             background_color=(1, 1, 1, 1),
             pos_hint={'x': 0.3, 'y': 0.77},
             size_hint=(0.4, 0.05),
             input_filter='int',
             multiline=False)
-        layout.add_widget(id_proveedor)
-
-        # Teléfono
-        layout.add_widget(Label(text='Teléfono',
-                            pos_hint={'x': 0.05, 'y': 0.65},
-                            size_hint=(0.3, 0.1),
-                            color=(1, 1, 1, 1),
-                            font_size='18sp'))
-        telefono = TextInput(
-            background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.67},
-            size_hint=(0.4, 0.05),
-            input_filter='int',
-            multiline=False)
-        layout.add_widget(telefono)
+        layout.add_widget(codigo_barras)
 
         # Nombre
         layout.add_widget(Label(text='Nombre',
-                            pos_hint={'x': 0.05, 'y': 0.55},
+                            pos_hint={'x': 0.05, 'y': 0.65},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         nombre = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.57},
+            pos_hint={'x': 0.3, 'y': 0.67},
             size_hint=(0.4, 0.05),
             multiline=False)
         layout.add_widget(nombre)
 
-        # Correo
-        layout.add_widget(Label(text='Correo',
+        # Precio
+        layout.add_widget(Label(text='Precio',
+                            pos_hint={'x': 0.05, 'y': 0.55},
+                            size_hint=(0.3, 0.1),
+                            color=(1, 1, 1, 1),
+                            font_size='18sp'))
+        precio = TextInput(
+            background_color=(1, 1, 1, 1),
+            pos_hint={'x': 0.3, 'y': 0.57},
+            size_hint=(0.4, 0.05),
+            input_filter='float',
+            multiline=False)
+        layout.add_widget(precio)
+
+        # Costo
+        layout.add_widget(Label(text='Costo',
                             pos_hint={'x': 0.05, 'y': 0.45},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
-        correo = TextInput(
+        costo = TextInput(
             background_color=(1, 1, 1, 1),
             pos_hint={'x': 0.3, 'y': 0.47},
             size_hint=(0.4, 0.05),
             multiline=False)
-        layout.add_widget(correo)
+        layout.add_widget(costo)
+        
+         # Existencia
+        layout.add_widget(Label(text='Existencia',
+                            pos_hint={'x': 0.05, 'y': 0.35},
+                            size_hint=(0.3, 0.1),
+                            color=(1, 1, 1, 1),
+                            font_size='18sp'))
+        existencia = TextInput(
+            background_color=(1, 1, 1, 1),
+            pos_hint={'x': 0.3, 'y': 0.37},
+            size_hint=(0.4, 0.05),
+            multiline=False)
+        layout.add_widget(existencia)
+        
+         # Reorden
+        layout.add_widget(Label(text='Reorden',
+                            pos_hint={'x': 0.05, 'y': 0.25},
+                            size_hint=(0.3, 0.1),
+                            color=(1, 1, 1, 1),
+                            font_size='18sp'))
+        reorden = TextInput(
+            background_color=(1, 1, 1, 1),
+            pos_hint={'x': 0.3, 'y': 0.17},
+            size_hint=(0.4, 0.05),
+            multiline=False)
+        layout.add_widget(reorden)
 
         # Funciones de los botones
         def crear_proveedor(instance):
-            id = id_proveedor.text
-            tel = telefono.text
-            nom = nombre.text
-            cor = correo.text
+            id = codigo_barras.text
+            tel = precio.text
+            nom = precio.text
+            cor = existencia.text
             
             if id and tel and nom and cor:
                 if existe(id):
@@ -197,10 +223,10 @@ class ProveedorScreen(Screen):
                 show_popup("Error", "Por favor llena todos los campos correctamente")
                 
         def actualizar_proveedor(instance):
-            id = id_proveedor.text
-            tel = telefono.text
-            nom = nombre.text
-            cor = correo.text
+            id = codigo_barras.text
+            tel = precio.text
+            nom = precio.text
+            cor = existencia.text
             
             if id and tel and nom and cor:
                 if existe(id):
@@ -212,15 +238,15 @@ class ProveedorScreen(Screen):
                 show_popup("Error", "Por favor completa todos los campos")
 
         def eliminar_proveedor(instance):
-            id = id_proveedor.text
+            id = codigo_barras.text
             if id:
                 eliminar(id)
                 show_popup("Éxito", "Proveedor eliminado correctamente")
                 # Limpiar campos
-                id_proveedor.text = ""
-                telefono.text = ""
-                nombre.text = ""
-                correo.text = ""
+                codigo_barras.text = ""
+                precio.text = ""
+                precio.text = ""
+                existencia.text = ""
             else:
                 show_popup("Error", "Ingresa el ID del proveedor a eliminar")
 
@@ -271,17 +297,19 @@ class ProveedorScreen(Screen):
         def limitar_telefono(instance, value):
             if len(value) > 10:
                 instance.text = value[:10]
-        telefono.bind(text=limitar_telefono)
+        precio.bind(text=limitar_telefono)
 
         def limitar_id(instance, value):
             if len(value) > 13:
                 instance.text = value[:13]
-        id_proveedor.bind(text=limitar_id)
+        codigo_barras.bind(text=limitar_id)
 
         def sin_espacios(instance, value):
             if ' ' in value:
                 instance.text = value.replace(' ', '')
-        correo.bind(text=sin_espacios)
+        existencia.bind(text=sin_espacios)
+        
         self.add_widget(layout)
+        
     def volver_menu(self, instance):
         self.manager.current = 'menu'
