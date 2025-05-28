@@ -26,7 +26,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="seveneleven"
+    database="tienda"
 )
 if conexion.is_connected():
     print("Conexión exitosa")
@@ -109,7 +109,7 @@ def actualizar(telefono, nombre, genero, correo):
 
 def eliminar(telefono):
     query = "DELETE FROM cliente WHERE telefono = %s"
-    valores = (telefono)
+    valores = (telefono,)
     cursor.execute(query, valores)
     conexion.commit()
 

@@ -6,6 +6,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.spinner import Spinner
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label as PopupLabel
 from kivy.core.window import Window
@@ -25,7 +26,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="seveneleven"
+    database="tienda"
 )
 if conexion.is_connected():
     print("Conexión exitosa")
@@ -92,6 +93,7 @@ def consultar():
         popup.open()
     except Exception as e:
             show_popup("Error", f"Error al consultar los datos: {str(e)}")
+
 def insertar(id_proveedor,telefono, nombre, correo):
     query = "INSERT INTO proveedor(id_proveedor, nombre,telefono, correo) VALUES (%s, %s, %s, %s)"
     valores = (id_proveedor, nombre,telefono, correo)
@@ -106,7 +108,20 @@ def actualizar(id_proveedor, nombre, telefono, correo):
 
 def eliminar(id_proveedor):
     query = "DELETE FROM proveedor WHERE id_proveedor = %s"
-    valores = (id_proveedor)
+    valores = (id_proveedor,)
+    cursor.execute(query, valores)
+    conexion.commit()
+
+# Nueva función para leer artículos
+def leer_articulos():
+    query = "SELECT codigo, nombre FROM articulo"
+    cursor.execute(query)
+    resultados = cursor.fetchall()
+    return {nombre: codigo for codigo, nombre in resultados}
+
+def atribuir(id_proveedor, codigo_articulo):
+    query = "UPDATE articulo SET id_proveedor = %s WHERE codigo = %s"
+    valores = (id_proveedor, codigo_articulo)
     cursor.execute(query, valores)
     conexion.commit()
 
@@ -180,6 +195,29 @@ class ProveedorScreen(Screen):
             multiline=False)
         layout.add_widget(correo)
 
+        # Spinner para artículos
+        articulos_dict = leer_articulos()
+        self.articulo_seleccionado = None
+        
+        def articulo_select(spinner, text):
+            self.articulo_seleccionado = articulos_dict.get(text)
+            print(f'Seleccionaste: {text} (Código: {self.articulo_seleccionado})')
+    
+        articulo_spinner = Spinner(text='Seleccionar',
+                                values=list(articulos_dict.keys()), 
+                                background_color=(0.8, 0.8, 0.8, 1),
+                                color=(1, 1, 1, 1),
+                                pos_hint={'x': 0.3, 'y': 0.37},
+                                size_hint=(0.2, 0.05))
+
+        layout.add_widget(Label(text='Artículo',
+                                pos_hint={'x': 0.05, 'y': 0.35},
+                                size_hint=(0.3, 0.1),
+                                color=(1, 1, 1, 1),
+                                font_size='18sp'))
+        layout.add_widget(articulo_spinner)
+        articulo_spinner.bind(text=articulo_select)
+
         # Funciones de los botones
         def crear_proveedor(instance):
             id = id_proveedor.text
@@ -204,7 +242,7 @@ class ProveedorScreen(Screen):
             
             if id and tel and nom and cor:
                 if existe(id):
-                    actualizar(id, nom, cor)
+                    actualizar(id, nom, tel, cor)
                     show_popup("Éxito", "Proveedor actualizado correctamente")
                 else:
                     show_popup("Error", f"El proveedor con ID {id} no existe")
@@ -223,6 +261,15 @@ class ProveedorScreen(Screen):
                 correo.text = ""
             else:
                 show_popup("Error", "Ingresa el ID del proveedor a eliminar")
+                
+        def agregar_proveedor_articulo(instance):
+            id = id_proveedor.text
+            codigo = self.articulo_seleccionado
+            if id and codigo:
+                atribuir(id, codigo)
+                show_popup("Éxito", "Proveedor asignado al artículo correctamente")
+            else:
+                show_popup("Error", "Selecciona un artículo e ingresa el ID del proveedor")
 
         # Botones
         boton_crear = Button(text='Crear',
@@ -248,6 +295,14 @@ class ProveedorScreen(Screen):
                             size_hint=(0.2, 0.08))
         boton_eliminar.bind(on_press=eliminar_proveedor)
         layout.add_widget(boton_eliminar)
+        
+        boton_agregar = Button(text='Agregar',
+                            background_color=(0, 0.5, 1, 1),
+                            color=(1, 1, 1, 1),
+                            pos_hint={'x': 0.55, 'y': 0.3},
+                            size_hint=(0.2, 0.08))
+        boton_agregar.bind(on_press=agregar_proveedor_articulo)
+        layout.add_widget(boton_agregar)
 
         boton_consultar = Button(text='Consultar',
                                 background_color=(0, 0.5, 1, 1),
@@ -283,5 +338,6 @@ class ProveedorScreen(Screen):
                 instance.text = value.replace(' ', '')
         correo.bind(text=sin_espacios)
         self.add_widget(layout)
+        
     def volver_menu(self, instance):
         self.manager.current = 'menu'

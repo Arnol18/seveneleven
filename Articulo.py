@@ -4,6 +4,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.spinner import Spinner
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
@@ -25,7 +26,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="seveneleven"
+    database="tienda"
 )
 if conexion.is_connected():
     print("Conexión exitosa")
@@ -34,14 +35,14 @@ else:
     print("No se pudo conectar a la base de datos")
 
 # Funciones SQL 
-def existe(id_proveedor):
-    query = "SELECT id_proveedor FROM proveedor WHERE id_proveedor = %s"
-    cursor.execute(query, (id_proveedor,))
+def existe(codigo):
+    query = "SELECT codigo FROM articulo WHERE codigo = %s"
+    cursor.execute(query, (codigo,))
     return cursor.fetchone() is not None
 
 def consultar():
     try:
-        query = "SELECT id_proveedor, nombre, telefono, correo FROM proveedor"
+        query = "SELECT codigo, nombre, precio, costo, existencias, id_categoria, id_unidad FROM articulo"
         cursor.execute(query)
         resultados = cursor.fetchall()
         
@@ -54,7 +55,7 @@ def consultar():
         main_layout.height = Window.height * 0.8
         
         # Título
-        titulo = Label(text="Listado de Proveedores", 
+        titulo = Label(text="Listado de Articulos", 
                      size_hint_y=None,
                      height=50,
                      font_size='20sp',
@@ -62,20 +63,24 @@ def consultar():
                      color=(0, 0, 0, 1))
         
         # Grid de datos
-        grid = GridLayout(cols=4, size_hint_y=None, spacing=5)
+        grid = GridLayout(cols=7, size_hint_y=None, spacing=5)
         grid.bind(minimum_height=grid.setter('height'))
         
         # Encabezados
-        for text in ["id_proveedor", "Nombre", "Telefono", "Correo"]:
+        for text in ["codigo", "nombre", "precio", "costo", "existencias", "categoria","unidad"]:
             grid.add_widget(Label(text=text, bold=True, size_hint_y=None, height=40))
         
         # Datos
-        for id_proveedor, nombre, telefono, correo in resultados:
-            grid.add_widget(Label(text=str(id_proveedor), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=nombre, size_hint_y=None, height=30))
-            grid.add_widget(Label(text=str(telefono), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=correo, size_hint_y=None, height=30))
+        for codigo, nombre, precio, costo, existencias, id_categoria, id_unidad in resultados:
+            grid.add_widget(Label(text=str(codigo), size_hint_y=None, height=30))
+            grid.add_widget(Label(text=nombre, size_hint_y=20, height=50))
+            grid.add_widget(Label(text=str(precio), size_hint_y=None, height=30))
+            grid.add_widget(Label(text=str(costo), size_hint_y=None, height=30))
+            grid.add_widget(Label(text=str(existencias), size_hint_y=None, height=30))
+            grid.add_widget(Label(text=str(id_categoria), size_hint_y=None, height=30))
+            grid.add_widget(Label(text=str(id_unidad), size_hint_y=None, height=30))
             
+        
         # ScrollView
         scroll = ScrollView(size_hint=(1, 1))
         scroll.add_widget(grid)
@@ -85,30 +90,39 @@ def consultar():
         main_layout.add_widget(scroll)
         
         # Popup
-        popup = Popup(title="Proveedores",
+        popup = Popup(title="Articulos",
                     content=main_layout,
                     size_hint=(0.9, 0.9),
                     background_color=(1, 1, 1, 1))
         popup.open()
+        
     except Exception as e:
-            show_popup("Error", f"Error al consultar los datos: {str(e)}")
-def insertar(id_proveedor,telefono, nombre, correo):
-    query = "INSERT INTO proveedor(id_proveedor, nombre,telefono, correo) VALUES (%s, %s, %s, %s)"
-    valores = (id_proveedor, nombre,telefono, correo)
+        show_popup("Error", f"Error al consultar los datos: {str(e)}")
+
+def insertar(codigo,nombre, precio, costo, existencias, reorden):
+    query = "INSERT INTO articulo (codigo, nombre, precio, costo, existencias, reorden) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    valores = (codigo, nombre, precio, costo, existencias, reorden)
     cursor.execute(query, valores)
     conexion.commit()
 
-def actualizar(id_proveedor, nombre, telefono, correo):
-    query = "UPDATE proveedor SET nombre = %s, telefono=%s, correo = %s WHERE id_proveedor = %s"
-    valores = (nombre, telefono, correo, id_proveedor,)
+def actualizar(codigo,nombre, precio, costo, existencias, reorden):
+    query = "UPDATE articulo SET codigo = %s, nombre=%s, precio = %s, costo=%s, existencias = %s, reorden=%s WHERE codigo = %s"
+    valores = (codigo,nombre, precio, costo, existencias, reorden)
     cursor.execute(query, valores)
     conexion.commit()
 
-def eliminar(id_proveedor):
-    query = "DELETE FROM proveedor WHERE id_proveedor = %s"
-    valores = (id_proveedor)
+def eliminar(codigo):
+    query = "DELETE FROM articulo WHERE codigo = %s"
+    valores = (codigo,)
     cursor.execute(query, valores)
     conexion.commit()
+
+def leer(id_columna, nombre_tabla):
+    query = f"SELECT {id_columna} FROM {nombre_tabla}"
+    cursor.execute(query)
+    resultados = cursor.fetchall()
+    return {id[0]: id[0] for id in resultados}
+
 
 class ArticuloScreen(Screen):    
     def __init__(self, **kwargs):
@@ -117,24 +131,15 @@ class ArticuloScreen(Screen):
         Window.clearcolor = (0.12, 0.12, 0.12, 1)
         layout = FloatLayout()
 
-        # Título
-        layout.add_widget(Label(
-            text='Catálogo de Proveedor',
-            pos_hint={'x': 0.27, 'y': 0.87},
-            size_hint=(0.5, 0.1),
-            color=(1, 1, 1, 1),
-            font_size='24sp'
-        ))
-
         # Codigo de barras
         layout.add_widget(Label(text='Codigo de Barras',
-                            pos_hint={'x': 0.05, 'y': 0.75},
+                            pos_hint={'x': 0.05, 'y': 0.85},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         codigo_barras = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.77},
+            pos_hint={'x': 0.3, 'y': 0.87},
             size_hint=(0.4, 0.05),
             input_filter='int',
             multiline=False)
@@ -142,26 +147,26 @@ class ArticuloScreen(Screen):
 
         # Nombre
         layout.add_widget(Label(text='Nombre',
-                            pos_hint={'x': 0.05, 'y': 0.65},
+                            pos_hint={'x': 0.05, 'y': 0.75},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         nombre = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.67},
+            pos_hint={'x': 0.3, 'y': 0.77},
             size_hint=(0.4, 0.05),
             multiline=False)
         layout.add_widget(nombre)
 
         # Precio
         layout.add_widget(Label(text='Precio',
-                            pos_hint={'x': 0.05, 'y': 0.55},
+                            pos_hint={'x': 0.05, 'y': 0.65},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         precio = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.57},
+            pos_hint={'x': 0.3, 'y': 0.67},
             size_hint=(0.4, 0.05),
             input_filter='float',
             multiline=False)
@@ -169,116 +174,128 @@ class ArticuloScreen(Screen):
 
         # Costo
         layout.add_widget(Label(text='Costo',
-                            pos_hint={'x': 0.05, 'y': 0.45},
+                            pos_hint={'x': 0.05, 'y': 0.55},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         costo = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.47},
+            pos_hint={'x': 0.3, 'y': 0.57},
             size_hint=(0.4, 0.05),
             multiline=False)
         layout.add_widget(costo)
         
          # Existencia
         layout.add_widget(Label(text='Existencia',
-                            pos_hint={'x': 0.05, 'y': 0.35},
+                            pos_hint={'x': 0.05, 'y': 0.45},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         existencia = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.37},
+            pos_hint={'x': 0.3, 'y': 0.47},
             size_hint=(0.4, 0.05),
             multiline=False)
         layout.add_widget(existencia)
         
          # Reorden
         layout.add_widget(Label(text='Reorden',
-                            pos_hint={'x': 0.05, 'y': 0.25},
+                            pos_hint={'x': 0.05, 'y': 0.35},
                             size_hint=(0.3, 0.1),
                             color=(1, 1, 1, 1),
                             font_size='18sp'))
         reorden = TextInput(
             background_color=(1, 1, 1, 1),
-            pos_hint={'x': 0.3, 'y': 0.17},
+            pos_hint={'x': 0.3, 'y': 0.37},
             size_hint=(0.4, 0.05),
             multiline=False)
         layout.add_widget(reorden)
+        
 
-        # Funciones de los botones
-        def crear_proveedor(instance):
+        def seleccionado(spinner, text):
+            global seleccionado_valor
+            try:
+                    seleccionado_valor = text
+            except ValueError:
+                seleccionado_valor = None
+                
+        # Funciones de los botones            
+        def crear_articulo(instance):
             id = codigo_barras.text
-            tel = precio.text
-            nom = precio.text
-            cor = existencia.text
-            
-            if id and tel and nom and cor:
+            nom = nombre.text
+            prc = precio.text
+            cst= costo.text
+            ext = existencia.text
+            rod = reorden.text      
+            if id and nom and prc and cst and ext and rod:
                 if existe(id):
-                    show_popup("Error", f"El proveedor con ID {id} ya existe")
+                    show_popup("Error", f"El articulo con codigo {id} ya existe")
                 else:
-                    insertar(id, tel, nom, cor)
-                    show_popup("Éxito", "Proveedor creado correctamente")
+                    insertar(id, nom, prc, cst, ext,rod)
+                    show_popup("Éxito", "Articulo creado correctamente")
             else:
                 show_popup("Error", "Por favor llena todos los campos correctamente")
-                
-        def actualizar_proveedor(instance):
-            id = codigo_barras.text
-            tel = precio.text
-            nom = precio.text
-            cor = existencia.text
             
-            if id and tel and nom and cor:
+        def actualizar_articulo(instance):
+            id = codigo_barras.text
+            nom = nombre.text
+            prc = precio.text
+            cst= costo.text
+            ext = existencia.text
+            rod = reorden.text 
+            
+            if id and nom and prc and cst and ext and rod:
                 if existe(id):
-                    actualizar(id, nom, cor)
-                    show_popup("Éxito", "Proveedor actualizado correctamente")
+                    actualizar(id, nom, prc, cst, ext, rod)
+                    show_popup("Éxito", "Articulo actualizado correctamente")
                 else:
-                    show_popup("Error", f"El proveedor con ID {id} no existe")
+                    show_popup("Error", f"El articulo con codigo {id} no existe")
             else:
                 show_popup("Error", "Por favor completa todos los campos")
 
-        def eliminar_proveedor(instance):
+        def eliminar_articulo(instance):
             id = codigo_barras.text
-            if id:
+            nom=nombre.text
+            if id and nom:
                 eliminar(id)
-                show_popup("Éxito", "Proveedor eliminado correctamente")
+                show_popup("Éxito", "Articulo eliminado correctamente")
                 # Limpiar campos
                 codigo_barras.text = ""
                 precio.text = ""
                 precio.text = ""
                 existencia.text = ""
             else:
-                show_popup("Error", "Ingresa el ID del proveedor a eliminar")
+                show_popup("Error", "Ingresa el ID y nombre del articulo a eliminar")
 
         # Botones
         boton_crear = Button(text='Crear',
                             background_color=(0, 0.5, 1, 1),
                             color=(1, 1, 1, 1),
-                            pos_hint={'x': 0.1, 'y': 0.2},
+                            pos_hint={'x': 0.1, 'y': 0.15},
                             size_hint=(0.2, 0.08))
-        boton_crear.bind(on_press=crear_proveedor)
+        boton_crear.bind(on_press=crear_articulo)
         layout.add_widget(boton_crear)
 
         boton_actualizar = Button(text='Actualizar',
                                 background_color=(0, 0.5, 1, 1),
                                 color=(1, 1, 1, 1),
-                                pos_hint={'x': 0.4, 'y': 0.2},
+                                pos_hint={'x': 0.4, 'y': 0.15},
                                 size_hint=(0.2, 0.08))
-        boton_actualizar.bind(on_press=actualizar_proveedor)
+        boton_actualizar.bind(on_press=actualizar_articulo)
         layout.add_widget(boton_actualizar)
 
         boton_eliminar = Button(text='Eliminar',
                             background_color=(0, 0.5, 1, 1),
                             color=(1, 1, 1, 1),
-                            pos_hint={'x': 0.7, 'y': 0.2},
+                            pos_hint={'x': 0.7, 'y': 0.15},
                             size_hint=(0.2, 0.08))
-        boton_eliminar.bind(on_press=eliminar_proveedor)
+        boton_eliminar.bind(on_press=eliminar_articulo)
         layout.add_widget(boton_eliminar)
 
         boton_consultar = Button(text='Consultar',
                                 background_color=(0, 0.5, 1, 1),
                                 color=(1, 1, 1, 1),
-                                pos_hint={'x': 0.3, 'y': 0.04}, 
+                                pos_hint={'x': 0.3, 'y': 0.03}, 
                                 size_hint=(0.4, 0.08))  
         boton_consultar.bind(on_press=lambda x: consultar())
         layout.add_widget(boton_consultar)

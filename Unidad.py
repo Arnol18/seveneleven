@@ -26,7 +26,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="seveneleven"
+    database="tienda"
 )
 if conexion.is_connected():
     print("Conexión exitosa")
@@ -99,9 +99,9 @@ def consultar():
         show_popup("Error", f"Error al consultar los datos: {str(e)}")
 
 
-def insertar(id_unidad, nombre, valor):
-    query = "INSERT INTO unidad(id_unidad, nombre, valor) VALUES (%s, %s, %s)"
-    valores = (id_unidad, nombre, valor)
+def insertar(id_unidad, nombre):
+    query = "INSERT INTO unidad(id_unidad, nombre) VALUES (%s, %s)"
+    valores = (id_unidad, nombre)
     cursor.execute(query, valores)
     conexion.commit()
 
@@ -164,19 +164,6 @@ class UnidadScreen(Screen):
                                 multiline=False)
         layout.add_widget(unidad)
 
-        # Valor
-        layout.add_widget(Label(text='Valor',
-                                pos_hint={'x': 0.05, 'y': 0.55},
-                                size_hint=(0.3, 0.1),
-                                color=(1, 1, 1, 1),
-                                font_size='18sp'))
-        valor = TextInput(
-                                background_color=(1, 1, 1, 1),
-                                pos_hint={'x': 0.3, 'y': 0.57},
-                                size_hint=(0.4, 0.05),
-                                multiline=False)
-        layout.add_widget(valor)
-
         # Articulo
         articulos_dict = leer()
         
@@ -205,9 +192,9 @@ class UnidadScreen(Screen):
         def crear_unidad(instance):
             id = id_unidad.text
             nom = unidad.text
-            val = valor.text
-            if id and nom and valor:
-                insertar(id, nom, val)
+        
+            if id and nom:
+                insertar(id, nom)
                 show_popup("Éxito", "Unidad creado correctamente")
             else:
                 show_popup("Error","Asegurate de llenar todos los campos correctamente") 
@@ -229,7 +216,6 @@ class UnidadScreen(Screen):
                 # Limpiar campos
                 id_unidad.text = ""
                 unidad.text = ""
-                valor.text = ""
             else:
                 show_popup("Error", "Ingresa el id para eliminar correctamente")
 

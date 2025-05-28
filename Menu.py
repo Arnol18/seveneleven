@@ -4,6 +4,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.core.window import Window
+from Venta import VentaScreen
 from Articulo import ArticuloScreen
 from Cliente import ClienteScreen
 from Categorias import CategoriaScreen
@@ -23,27 +24,22 @@ class MenuScreen(Screen):
         # Título
         layout.add_widget(Label(
             text='Menu',
-            pos_hint={'x': 0.27, 'y': 0.87},
+            pos_hint={'x': 0.26, 'y': 0.87},
             size_hint=(0.5, 0.1),
             color=(1, 1, 1, 1),
             font_size='24sp'
         ))
             
-        boton_unidad = Button(text='Venta',
+        boton_venta = Button(text='Venta',
                                 background_color=(0, 0.5, 1, 1),
                                 color=(1, 1, 1, 1),
-                                pos_hint={'x': 0.1, 'y': 0.65},
-                                size_hint=(0.3, 0.08))
-        #boton_agregar.bind(on_press=Venta.py)
-        layout.add_widget(boton_unidad)
+                                pos_hint={'x': 0.36, 'y': 0.65},
+                                size_hint=(0.3, 0.08),
+        )
+        boton_venta.bind(on_press=lambda instance: self.cambiar_pantalla('venta'))
+        layout.add_widget(boton_venta)
 
-        boton_compra = Button(text='Compra',
-                                background_color=(0, 0.5, 1, 1),
-                                color=(1, 1, 1, 1),
-                                pos_hint={'x': 0.6, 'y': 0.65},
-                                size_hint=(0.3, 0.08))
-        #boton_agregar.bind(on_press=agregar_categoria)
-        layout.add_widget(boton_compra)
+       
 
 
         boton_articulo = Button(text='Articulo',
@@ -51,7 +47,7 @@ class MenuScreen(Screen):
                                 color=(1, 1, 1, 1),
                                 pos_hint={'x': 0.1, 'y': 0.5},
                                 size_hint=(0.3, 0.08))
-        #boton_agregar.bind(on_press=agregar_categoria)
+        boton_articulo.bind(on_press=lambda instance: self.cambiar_pantalla('articulo'))
         layout.add_widget(boton_articulo)
 
         boton_proveedor = Button(text='Proveedor',
@@ -102,7 +98,7 @@ class MenuApp(App):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(MenuScreen(name='menu'))
-        sm.add_widget(ClienteScreen(name='venta'))
+        sm.add_widget(VentaScreen(name='venta'))
         sm.add_widget(ClienteScreen(name='compra'))
         sm.add_widget(ArticuloScreen(name='articulo'))
         sm.add_widget(ProveedorScreen(name='proveedor'))

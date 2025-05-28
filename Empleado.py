@@ -28,7 +28,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="seveneleven"
+    database="tienda"
 )
 if conexion.is_connected():
     print("Conexión exitosa")
@@ -271,7 +271,7 @@ class EmpleadoScreen(Screen):
                     show_popup("Error", f"El usuario con ID {id_usuario} no existe")
                     return
 
-                # Convertir clave ingresada a MD5 en Python
+                # Convertir clave ingresada a MD5 
                 clave_md5 = hashlib.md5(clave_usuario.encode()).hexdigest()
                 print(hashlib.md5("password".encode()).hexdigest())
                 # Verificar contraseña con la clave MD5
