@@ -9,6 +9,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.modalview import ModalView
 from kivy.core.window import Window
 from kivy.properties import StringProperty, ObjectProperty, ListProperty
+from kivy.clock import Clock
 import mysql.connector
 from mysql.connector import Error
 import logging
@@ -23,10 +24,10 @@ try:
         host="localhost",
         user="root",
         password="",
-        database="tienda"
+        database="seveneleven"
     )
     cursor = conexion.cursor()
-    print("Conexión exitosa a la base de datos")
+    print("Conexión exitosa")
 except Error as e:
     print(f"Error al conectar a MySQL: {e}")
     conexion = None
@@ -86,7 +87,7 @@ class VentaScreen(Screen):
     total_var = StringProperty("$0.00")
     cliente_var = StringProperty("")
     articulos_carrito = ListProperty([])
-    id_empleado_actual = 1
+    id_empleado_actual = 1234
     
     def __init__(self, **kwargs):
         super(VentaScreen, self).__init__(**kwargs)
@@ -103,8 +104,94 @@ class VentaScreen(Screen):
         self.mostrar_mensaje = self._mostrar_mensaje
         self.mostrar_ticket = self._mostrar_ticket
         
+        # Variables para manejo de código de barras
+        self.barcode_buffer = ""
+        self.barcode_timeout = 0
+        self.barcode_reading = False
+        
         self.construir_ui()
         
+        # Configurar el evento de teclado
+        Window.bind(on_key_down=self._on_keyboard_down)
+        Clock.schedule_interval(self._check_barcode_timeout, 0.1)
+    
+    def _on_keyboard_down(self, window, keycode, scancode, codepoint, modifiers):
+        """
+        Captura la entrada del teclado para detectar códigos de barras.
+        Los lectores de códigos de barras suelen enviar los datos seguidos de ENTER.
+        """
+        # Ignorar teclas modificadoras
+        if modifiers:
+            return
+            
+        # Obtener el caracter de la tecla presionada
+        char = codepoint if codepoint else chr(keycode)
+        
+        # Si es un caracter imprimible (no ENTER)
+        if char and char != '\r' and char != '\n':
+            self.barcode_buffer += char
+            self.barcode_timeout = 0.5  # 500ms para terminar el código
+            self.barcode_reading = True
+        # Si es ENTER y estamos en medio de una lectura
+        elif (char == '\r' or char == '\n') and self.barcode_reading:
+            self._process_barcode()
+    
+    def _check_barcode_timeout(self, dt):
+        """Verifica si ha pasado el tiempo máximo para completar un código de barras."""
+        if self.barcode_reading and self.barcode_timeout > 0:
+            self.barcode_timeout -= dt
+            if self.barcode_timeout <= 0:
+                self._process_barcode()
+    
+    def _process_barcode(self):
+        """Procesa el código de barras capturado."""
+        if not self.barcode_buffer:
+            self.barcode_reading = False
+            return
+            
+        codigo = self.barcode_buffer.strip()
+        self.barcode_buffer = ""
+        self.barcode_reading = False
+        
+        # Buscar el producto por código de barras
+        self._buscar_producto_por_codigo(codigo)
+    
+    def _buscar_producto_por_codigo(self, codigo):
+        """Busca un producto en la base de datos por su código de barras."""
+        try:
+            cursor.execute("SELECT codigo, nombre, precio, existencias FROM articulo WHERE codigo = %s", (codigo,))
+            producto = cursor.fetchone()
+            
+            if producto:
+                codigo, nombre, precio, existencias = producto
+                
+                # Crear el objeto producto como lo hace el botón
+                datos_producto = {
+                    'codigo': codigo,
+                    'nombre': nombre,
+                    'precio': float(precio),
+                    'existencias': existencias
+                }
+                
+                # Simular el click en el botón del producto
+                fake_button = BotonProducto()
+                fake_button.datos_producto = datos_producto
+                self.agregar_al_carrito(fake_button)
+                
+                # Opcional: reproducir sonido de éxito
+                try:
+                    from kivy.core.audio import SoundLoader
+                    sound = SoundLoader.load('assets/sounds/beep.wav')
+                    if sound:
+                        sound.play()
+                except:
+                    pass
+            else:
+                self.mostrar_mensaje("Código no encontrado", f"No existe producto con código: {codigo}")
+                
+        except Error as e:
+            self.mostrar_mensaje("Error DB", f"No se pudo buscar producto: {e.msg}")
+    
     def construir_ui(self):
         layout_principal = BoxLayout(orientation='horizontal', spacing=10, padding=10)
         

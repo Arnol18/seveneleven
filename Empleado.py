@@ -28,7 +28,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="tienda"
+    database="seveneleven"
 )
 if conexion.is_connected():
     print("Conexión exitosa")

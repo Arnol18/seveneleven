@@ -205,54 +205,18 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
--- Insertar unidades
-INSERT INTO unidad (id_unidad, nombre) VALUES 
-('U001', 'pieza'),
-('U002', 'litro'),
-('U003', 'gramo'),
-('U004', 'kilogramo'),
-('U005', 'mililitro'),
-('U006', 'sobre'),
-('U007', 'unidad');
-
--- Insertar categorias
-INSERT INTO categoria (id_categoria, nombre) VALUES
-('CAT001', 'Lacteos'),
-('CAT002', 'Salsas y Aderezos'),
-('CAT003', 'Bebidas'),
-('CAT004', 'Panaderia y Pasteleria'),
-('CAT005', 'Cafe y Te'),
-('CAT006', 'Harinas y Cereales'),
-('CAT007', 'Snacks y Dulces'),
-('CAT008', 'Suplementos Alimenticios'),
-('CAT009', 'Condimentos'),
-('CAT010', 'Galletas y Snacks');
-
--- Insertar proveedores
-INSERT INTO proveedor (id_proveedor, nombre, telefono, correo) VALUES
-(1, 'Grupo Lala', '5551234567', 'contacto@lala.com.mx'),
-(2, 'Clemente Jacques', '5552345678', 'ventas@clemente.com.mx'),
-(3, 'Danone México', '5553456789', 'info@danone.com.mx'),
-(4, 'Gamesa', '5554567890', 'contacto@gamesa.com.mx'),
-(5, 'Pisa Farmacéutica', '5555678901', 'ventas@pisa.com.mx'),
-(6, 'Nestlé México', '5556789012', 'contacto@nestle.mx'),
-(7, 'Maseca', '5557890123', 'info@maseca.com'),
-(8, 'Herdez', '5558901234', 'ventas@herdez.com.mx'),
-(9, 'Great Value', '5559012345', 'contacto@greatvalue.com'),
-(10, 'Sabritas', '5550123456', 'info@sabritas.com.mx');
-
 -- Insertar articulos
-INSERT INTO articulo (codigo, nombre, precio, costo, existencias, reorden, id_categoria, id_proveedor, id_unidad) VALUES
-('7501020565959', 'Leche semidescremada Lala 1 lt', 22.50, 18.00, 50, 10, 'CAT001', 1, 'U002'),
-('7501052472195', 'Catsup Clemente Jacques 220g', 18.00, 12.50, 100, 20, 'CAT002', 2, 'U003'),
-('7501040090028', 'Yoghurt Yoplait Batido Natural 1Kg', 35.00, 28.00, 60, 15, 'CAT001', 1, 'U004'),
-('7501032398477', 'Vitalinea sin azucar sabor Manzana Verde - Danone', 24.00, 20.00, 40, 10, 'CAT001', 3, 'U003'),
-('7501000630363', 'Mini Mamut Gamesa 12 g', 6.00, 4.00, 120, 30, 'CAT007', 4, 'U003'),
-('7501125149221', 'Electrolit sabor Fresa/Kiwi 625 ml', 28.00, 22.00, 80, 20, 'CAT003', 5, 'U005'),
-('7506495020224', 'Media crema 252gr', 26.00, 20.00, 70, 15, 'CAT001', 1, 'U003'),
-('7501079016235', 'Italpasta pasta tallarin largo 200 gr', 14.00, 11.00, 90, 25, 'CAT006', 6, 'U003'),
-('7501005110242', 'Harina Maizena Natural 95Gr', 16.00, 12.00, 75, 20, 'CAT006', 6, 'U003'),
-('7501052474076', 'Mermelada Clemente Jacques Fresa 470g', 38.00, 30.00, 55, 15, 'CAT002', 2, 'U003');
+INSERT INTO articulos (codigo, nombre, precio, costo, existencias, reorden) VALUES
+('7508478808538', 'Sabritas Ruffles Mix', 18.00, 12.00, 36, 25),
+('7500478043927', 'Sabritas original', 24.00, 14.00, 75, 25),
+('7501020515343', 'Leche Lala', 28.00, 15.50, 63, 25),
+('7501031311389', 'Pepsi', 15.50, 10.00, 42, 20),
+('7501055302086', 'Coca-Cola', 18.50, 12.00, 97, 20),
+('7501055330295', 'Coca-Cola', 18.00, 12.00, 80, 15),
+('7501055628121', 'Pomada de la campana', 18.00, 12.00, 75, 5),
+('7501086081046', 'Epura Agua', 16.00, 10.00, 33, 20),
+('7509546084520', 'Speed Stick Gel Extreme', 35.00, 25.00, 30, 15),
+('7509546084538', 'Lady Speed Stick Aloe', 35.00, 25.00, 45, 10);
 
 -- Insertar clientes (incluyendo el cliente general)
 INSERT INTO cliente (telefono, nombre, correo, genero) VALUES
@@ -279,82 +243,3 @@ INSERT INTO empleado (id_empleado, nombre, genero, puesto, sueldo, clave) VALUES
 (8, 'Lucía Méndez Ramírez', 'F', 'cajero', 12000.00, 'cajero234'),
 (9, 'Raúl Herrera Torres', 'M', 'cajero', 12000.00, 'cajero567'),
 (10, 'Carmen Silva Castro', 'F', 'cajero', 12000.00, 'cajero890');
-
--- Insertar ventas (con fechas en 2025)
-INSERT INTO venta (id_venta, fecha, importe, telefono, id_empleado) VALUES
-(1, '2025-01-15', 125.50, '9611234567', 3),
-(2, '2025-01-16', 89.75, '9612345678', 4),
-(3, '2025-01-17', 210.25, '9613456789', 3),
-(4, '2025-01-18', 56.00, '1', 5),
-(5, '2025-01-19', 178.50, '9614567890', 4),
-(6, '2025-01-20', 92.00, '9615678901', 7),
-(7, '2025-01-21', 145.75, '9616789012', 8),
-(8, '2025-01-22', 63.25, '9617890123', 3),
-(9, '2025-01-23', 112.00, '9618901234', 5),
-(10, '2025-01-24', 204.50, '9619012345', 4);
-
--- Insertar detalles de venta
-INSERT INTO detalle_venta (id_venta, codigo, cantidad, subtotal) VALUES
-(1, '7501020565959', 2, 45.00),
-(1, '7501052472195', 1, 18.00),
-(1, '7501000630363', 5, 30.00),
-(1, '7501125149221', 1, 28.00),
-(1, '7501005110242', 1, 16.00),
-(2, '7501040090028', 1, 35.00),
-(2, '7501032398477', 2, 48.00),
-(2, '7506495020224', 1, 26.00),
-(3, '7501079016235', 3, 42.00),
-(3, '7501052474076', 2, 76.00),
-(3, '7501020565959', 4, 90.00),
-(4, '7501000630363', 10, 60.00),
-(5, '7501125149221', 2, 56.00),
-(5, '7501052472195', 2, 36.00),
-(5, '7506495020224', 1, 26.00),
-(6, '7501032398477', 1, 24.00),
-(6, '7501005110242', 2, 32.00),
-(7, '7501040090028', 2, 70.00),
-(7, '7501079016235', 1, 14.00),
-(8, '7501052474076', 1, 38.00),
-(9, '7501020565959', 3, 67.50),
-(10, '7501052472195', 3, 54.00),
-(10, '7501000630363', 8, 48.00),
-(10, '7501125149221', 2, 56.00);
-
--- Insertar compras (con fechas en 2025)
-INSERT INTO compra (id_compra, fecha, importe, id_proveedor) VALUES
-(1, '2025-01-05', 1800.00, 1),
-(2, '2025-01-06', 1250.00, 2),
-(3, '2025-01-07', 1680.00, 3),
-(4, '2025-01-08', 480.00, 4),
-(5, '2025-01-09', 1760.00, 5),
-(6, '2025-01-10', 990.00, 6),
-(7, '2025-01-11', 1400.00, 1),
-(8, '2025-01-12', 1500.00, 2),
-(9, '2025-01-13', 900.00, 3),
-(10, '2025-01-14', 800.00, 4);
-
--- Insertar detalles de compra
-INSERT INTO detalle_comp (id_compra, codigo, cantidad, subtotal) VALUES
-(1, '7501020565959', 100, 1800.00),
-(2, '7501052472195', 100, 1250.00),
-(3, '7501032398477', 80, 1600.00),
-(4, '7501000630363', 300, 1200.00),
-(5, '7501125149221', 80, 1760.00),
-(6, '7501005110242', 75, 900.00),
-(7, '7501040090028', 60, 1680.00),
-(8, '7501052474076', 50, 1500.00),
-(9, '7506495020224', 70, 1400.00),
-(10, '7501079016235', 90, 990.00);
-
--- Insertar facturas
-INSERT INTO factura (id_factura, fecha, detalles, rfc_emisor, rfc_receptor, id_venta) VALUES
-(1, '2025-01-15', 'Venta al público en general', 'TIE250115ABC', 'XAXX010101000', 1),
-(2, '2025-01-16', 'Venta con descuento especial', 'TIE250116ABC', 'XAXX010101000', 2),
-(3, '2025-01-17', 'Venta al mayoreo', 'TIE250117ABC', 'XAXX010101000', 3),
-(4, '2025-01-18', 'Venta sin cliente registrado', 'TIE250118ABC', 'XAXX010101000', 4),
-(5, '2025-01-19', 'Venta con tarjeta de crédito', 'TIE250119ABC', 'XAXX010101000', 5),
-(6, '2025-01-20', 'Venta con promoción', 'TIE250120ABC', 'XAXX010101000', 6),
-(7, '2025-01-21', 'Venta al contado', 'TIE250121ABC', 'XAXX010101000', 7),
-(8, '2025-01-22', 'Venta con puntos de lealtad', 'TIE250122ABC', 'XAXX010101000', 8),
-(9, '2025-01-23', 'Venta con descuento por volumen', 'TIE250123ABC', 'XAXX010101000', 9),
-(10, '2025-01-24', 'Venta con pago en efectivo', 'TIE250124ABC', 'XAXX010101000', 10);
