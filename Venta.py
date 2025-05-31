@@ -677,8 +677,7 @@ class VentaScreen(Screen):
             cursor.execute("""
                 INSERT INTO venta (fecha, tipo, metodo_pago, pago, cambio, importe, nombre_cliente, telefono, id_empleado) VALUES (
                     NOW(), 'Ticket', %s, %s, %s, %s, %s, %s, %s)""", 
-                    (self.metodo_pago,pago,cambio,total,nombre_cliente,telefono_cliente if telefono_cliente != '9619999999' else None,  # Guardar NULL si es cliente general
-                    self.id_empleado_actual))
+                    (self.metodo_pago,pago,cambio,total,nombre_cliente,telefono_cliente, self.id_empleado_actual))
             
             id_venta = cursor.lastrowid
             
