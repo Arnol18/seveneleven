@@ -29,7 +29,6 @@ conexion = mysql.connector.connect(
     database="seveneleven"
 )
 if conexion.is_connected():
-    print("Conexión exitosa")
     cursor = conexion.cursor()
 else:
     print("No se pudo conectar a la base de datos")
@@ -42,7 +41,7 @@ def existe(id_unidad):
 
 def consultar():
     try:
-        query = "SELECT codigo, nombre, precio, costo, existencias, reorden, id_unidad FROM articulo"
+        query = "SELECT id_unidad, nombre FROM unidad"
         cursor.execute(query)
         resultados = cursor.fetchall()
         
@@ -55,7 +54,7 @@ def consultar():
         main_layout.height = Window.height * 0.8
         
         # Título
-        titulo = Label(text="Listado de Articulos", 
+        titulo = Label(text="Unidades", 
                      size_hint_y=None,
                      height=50,
                      font_size='20sp',
@@ -63,22 +62,18 @@ def consultar():
                      color=(0, 0, 0, 1))
         
         # Grid de datos
-        grid = GridLayout(cols=7, size_hint_y=None, spacing=2)
+        grid = GridLayout(cols=2, size_hint_y=None, spacing=2)
         grid.bind(minimum_height=grid.setter('height'))
         
         # Encabezados
-        for text in ["codigo", "nombre", "precio", "costo", "existencias", "reorden", "id_unidad"]:
+        for text in ["id_unidad","nombre"]:
             grid.add_widget(Label(text=text, bold=True, size_hint_y=None, height=40))
         
         # Datos
-        for codigo, nombre, precio, costo, existencias, reorden, id_unidad in resultados:
-            grid.add_widget(Label(text=str(codigo), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=nombre, size_hint_y=None, height=30))
-            grid.add_widget(Label(text=str(precio), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=str(costo), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=str(existencias), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=str(reorden), size_hint_y=None, height=30))
-            grid.add_widget(Label(text=str(id_unidad), size_hint_y=None, height=30))
+        for id_unidad, nombre in resultados:
+           grid.add_widget(Label(text=str(id_unidad), size_hint_y=None, height=30)) 
+           grid.add_widget(Label(text=nombre, size_hint_y=None, height=30))
+            
         
         # ScrollView
         scroll = ScrollView(size_hint=(1, 1))

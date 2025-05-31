@@ -31,7 +31,6 @@ conexion = mysql.connector.connect(
     database="seveneleven"
 )
 if conexion.is_connected():
-    print("Conexión exitosa")
     cursor = conexion.cursor()
 else:
     print("No se pudo conectar a la base de datos")
